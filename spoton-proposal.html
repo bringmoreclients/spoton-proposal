@@ -1,0 +1,820 @@
+<div id="spoton-proposal-app">
+  <style>
+   /* ====== Base ====== */
+    :root{
+      --text:#111827;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --soft:#f9fafb;
+      --soft2:#f3f4f6;
+      --accent:#111827;
+      --good:#065f46;
+      --warn:#92400e;
+      --pill:#eef2ff;
+      --mutedTotal:#9ca3af;
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    #spoton-proposal-app{
+      font-family: Arial, Helvetica, sans-serif;
+      color:var(--text);
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 18px;
+      background:#fff;
+    }
+    h1{font-size:22px;margin:0 0 6px 0}
+    h2{font-size:16px;margin:18px 0 8px 0}
+    p{margin:6px 0; color:var(--muted); line-height:1.35}
+    .row{display:flex; gap:12px; flex-wrap:wrap}
+    .card{
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:14px;
+      background:#fff;
+      width:100%;
+    }
+    .card.soft{background:var(--soft)}
+    .topbar{
+      display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap;
+      padding-bottom:10px; border-bottom:1px solid var(--line);
+      margin-bottom:12px;
+    }
+    .meta{font-size:12px;color:var(--muted)}
+    .pill{
+      display:inline-block; padding:6px 10px; border-radius:999px; background:var(--pill);
+      color:#1f2937; font-size:12px; margin-top:6px;
+    }
+    .controls{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    button{
+      border:1px solid var(--line); background:#fff; color:var(--text);
+      padding:8px 10px; border-radius:10px; cursor:pointer; font-size:13px;
+    }
+    button.primary{background:var(--accent); color:#fff; border-color:var(--accent)}
+    button:active{transform: translateY(1px)}
+    .toggle{
+      display:flex; align-items:center; gap:8px; padding:6px 10px;
+      border:1px solid var(--line); border-radius:999px; background:#fff; font-size:13px;
+    }
+    .toggle input{width:18px;height:18px}
+    .field{display:flex; flex-direction:column; gap:4px}
+    .field label{font-size:12px;color:var(--muted)}
+    input[type="text"], input[type="number"]{
+      border:1px solid var(--line); border-radius:10px; padding:8px 10px; font-size:13px; width:140px;
+    }
+    input.small{width:110px}
+    input.wide{width:220px}
+    .hint{font-size:12px;color:var(--muted)}
+    .muted{color:var(--muted)}
+    .right{text-align:right}
+    .center{text-align:center}
+    .nowrap{white-space:nowrap}
+    /* ====== Table ====== */
+    table{width:100%; border-collapse:separate; border-spacing:0; border:1px solid var(--line); border-radius:12px; overflow:hidden}
+    thead th{
+      background:var(--soft2);
+      font-size:12px; color:#374151; text-align:left; padding:10px 10px;
+      border-bottom:1px solid var(--line);
+    }
+    tbody td{
+      padding:10px 10px; border-bottom:1px solid var(--line); vertical-align:middle;
+      font-size:13px;
+    }
+    tbody tr:last-child td{border-bottom:none}
+    .td-actions{width:42px}
+    .btn-mini{
+      padding:6px 8px; border-radius:10px; font-size:12px;
+    }
+    .greyed{opacity:.55}
+    .locked{
+      background:#f8fafc;
+      pointer-events:none;
+    }
+    /* ====== Totals ====== */
+    .totals{
+      display:flex; justify-content:flex-end; margin-top:10px;
+    }
+    .totals-box{
+      min-width:320px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:12px;
+      background:var(--soft);
+    }
+    .totals-line{
+      display:flex; justify-content:space-between; padding:4px 0;
+      font-size:13px;
+    }
+    .totals-line strong{font-size:14px}
+    .divider{height:1px;background:var(--line);margin:8px 0}
+
+    /* NEW: mute the itemized SaaS total line when flat rate is ON */
+    .muted-total{ color: var(--mutedTotal) !important; }
+    .muted-total b{ color: var(--mutedTotal) !important; }
+
+    /* ====== Core Callout ====== */
+    .callout{
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:12px;
+      background:#fff;
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:flex-start;
+      flex-wrap:wrap;
+    }
+    .callout b{font-size:14px}
+    .callout .sub{font-size:12px;color:var(--muted);margin-top:4px;max-width:680px;line-height:1.35}
+    .callout .tag{
+      font-size:12px; padding:6px 10px; border-radius:999px;
+      background:#ecfdf5; color:var(--good);
+      border:1px solid #d1fae5;
+      white-space:nowrap;
+    }
+    /* ====== Processing selector ====== */
+    .proc-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:10px}
+    @media (max-width: 860px){ .proc-grid{grid-template-columns:1fr} }
+    .proc{
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:12px;
+      cursor:pointer;
+      background:#fff;
+      position:relative;
+      min-height:86px;
+    }
+    .proc.selected{border-color:#111827}
+    .proc .title{display:flex; gap:10px; align-items:center; justify-content:space-between}
+    .proc .title strong{font-size:13px}
+    .proc .desc{margin-top:6px;font-size:12px;color:var(--muted);line-height:1.35}
+    .info{
+      width:20px;height:20px;border-radius:50%;
+      display:inline-flex;align-items:center;justify-content:center;
+      border:1px solid var(--line); color:#374151; font-size:12px;
+      background:#fff;
+    }
+    .tooltip{
+      position:absolute; right:10px; top:34px;
+      width:280px;
+      background:#111827;
+      color:#fff;
+      font-size:12px;
+      padding:10px 10px;
+      border-radius:10px;
+      display:none;
+      z-index:10;
+      line-height:1.35;
+    }
+    .tooltip ul{margin:6px 0 0 16px;padding:0}
+    .tooltip li{margin:2px 0}
+    .proc .info-wrap{position:relative}
+    .proc .info-wrap:hover .tooltip{display:block}
+    /* ====== Print ====== */
+    @media print{
+      #spoton-proposal-app{padding:0}
+      .no-print{display:none !important}
+      .card{border:none; padding:0}
+      table{border:1px solid #d1d5db}
+      thead th{background:#f3f4f6 !important}
+      .totals-box{border:1px solid #d1d5db}
+      .pill{border:1px solid #d1d5db}
+    }
+  </style>
+
+  <div class="topbar">
+   <div>
+    <h1>SpotOn POS Pricing Proposal</h1>
+    <div class="meta">
+     Prepared for:
+     <b><span id="merchantNameDisplay">[Restaurant Name]</span></b>
+     &nbsp;|&nbsp;
+     Date:
+     <b><span id="todayDisplay"></span></b>
+    </div>
+    <div class="pill">CloudPOS Proposal</div>
+   </div>
+
+   <!-- Controls -->
+   <div class="controls no-print">
+    <button id="btnSelect" class="btn-mini" title="Highlights the entire proposal for printing">
+     Select Proposal
+    </button>
+    <button class="primary" id="btnPrint">Print / Save PDF</button>
+   </div>
+  </div>
+
+  <!-- Header Fields -->
+  <div class="card soft">
+   <div class="row">
+    <div class="field">
+     <label>Restaurant Name</label>
+     <input class="wide" type="text" id="merchantName" placeholder="Local Restaurant Owner">
+    </div>
+    <div class="field">
+     <label>Prepared By</label>
+     <input class="wide" type="text" id="preparedBy" placeholder="Maverick">
+    </div>
+    <div class="field">
+     <label>Proposal Valid (days)</label>
+     <input class="small" type="number" id="validDays" value="60" min="0">
+    </div>
+   </div>
+   <p class="hint">Tip: Edit the line items below during your live call. Then click “Print / Save PDF.”</p>
+  </div>
+
+  <!-- Hardware -->
+  <div class="card">
+   <div class="row" style="align-items:center; justify-content:space-between;">
+    <h2 style="margin:0">POS Hardware</h2>
+    <div class="controls no-print">
+     <label class="toggle">
+      <input type="checkbox" id="simpleViewToggle"> Simple View
+     </label>
+     <button id="btnAddHardware" class="btn-mini">+ Add Item</button>
+    </div>
+   </div>
+
+   <div id="hardwareItemizedWrap">
+    <table id="hardwareTable">
+     <thead>
+      <tr>
+       <th>Item</th>
+       <th class="center nowrap">Qty</th>
+       <th class="right nowrap">Unit Street</th>
+       <th class="right nowrap">Unit My Price</th>
+       <th class="right nowrap">Line Total</th>
+       <th class="center nowrap">Comp?</th>
+       <th class="td-actions no-print"></th>
+      </tr>
+     </thead>
+     <tbody id="hardwareBody"></tbody>
+    </table>
+    <p class="hint">Comp? checkbox will set “My Price” to $0.00 for that line.</p>
+   </div>
+
+   <div id="hardwareSimpleWrap" style="display:none;">
+    <table>
+     <thead>
+      <tr>
+       <th>Hardware Summary</th>
+       <th class="right nowrap">Total</th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td>POS Hardware Bundle (based on itemized list)</td>
+       <td class="right"><b><span id="hardwareBundleTotal">$0.00</span></b></td>
+      </tr>
+     </tbody>
+    </table>
+    <p class="hint">Simple View is a summary only; totals still come from itemized rows.</p>
+   </div>
+
+   <div class="row" style="margin-top:10px; align-items:flex-end;">
+    <div class="field no-print">
+     <label>Shipping (manual override)</label>
+     <input type="number" id="shipping" value="223" min="0" step="0.01">
+    </div>
+    <div class="field no-print">
+     <label>Tax % (only if Tax ON)</label>
+     <input type="number" id="taxRate" value="0" min="0" step="0.01">
+    </div>
+    <label class="toggle no-print" style="margin-bottom:2px;">
+     <input type="checkbox" id="taxToggle"> Tax ON/OFF
+    </label>
+   </div>
+
+   <div class="totals">
+    <div class="totals-box">
+     <div class="totals-line">
+      <span>Hardware Subtotal</span>
+      <span><b id="hardwareSubtotal">$0.00</b></span>
+     </div>
+     <div class="totals-line">
+      <span>Shipping</span>
+      <span id="shippingDisplay">$0.00</span>
+     </div>
+     <div class="totals-line">
+      <span>Tax</span>
+      <span id="taxDisplay">$0.00</span>
+     </div>
+     <div class="divider"></div>
+     <div class="totals-line">
+      <strong>Total Hardware (One-Time)</strong>
+      <strong id="hardwareGrandTotal">$0.00</strong>
+     </div>
+    </div>
+   </div>
+  </div>
+
+  <!-- SaaS -->
+  <div class="card">
+   <div class="row" style="align-items:flex-start; justify-content:space-between;">
+    <div>
+     <h2 style="margin:0">Monthly Software (SaaS)</h2>
+     <p class="hint" style="margin-top:6px;">
+      Default is itemized. Toggle “Override to Flat Rate” to set a flat monthly price while keeping the itemized lines visible (greyed).
+     </p>
+    </div>
+    <div class="controls no-print">
+     <label class="toggle">
+      <input type="checkbox" id="saasOverrideToggle"> Override to Flat Rate
+     </label>
+    </div>
+   </div>
+
+   <div class="callout" style="margin-top:10px;">
+    <div>
+     <b>SpotOn Core (Restaurant Bundle)</b>
+     <div class="sub">
+      <b>Year 1: Included (12 months free)</b> → then <b>$50/month after year one</b>
+      (shown for reference only; not included in totals).
+     </div>
+    </div>
+    <div class="tag">Year 1 Included</div>
+   </div>
+
+   <div class="row" style="margin-top:12px; align-items:flex-end;">
+    <div class="field no-print">
+     <label>Flat Rate Monthly SaaS (when Override ON)</label>
+     <input type="number" id="saasFlatRate" value="105" min="0" step="0.01">
+    </div>
+    <div class="field">
+     <label>Calculated Discount</label>
+     <div class="hint">
+      <b><span id="saasDiscountPct">0%</span></b>
+      &nbsp;|&nbsp;
+      Savings: <b><span id="saasDiscountDollars">$0.00</span></b> /mo
+     </div>
+    </div>
+   </div>
+
+   <table style="margin-top:10px;">
+    <thead>
+     <tr>
+      <th>Monthly SaaS Item</th>
+      <th class="center nowrap">Qty</th>
+      <th class="right nowrap">Unit Price</th>
+      <th class="right nowrap">Line Total</th>
+     </tr>
+    </thead>
+    <tbody id="saasBody"></tbody>
+   </table>
+
+   <div class="totals">
+    <div class="totals-box">
+     <!-- NEW: give this row an ID so we can mute it when override is ON -->
+     <div class="totals-line" id="saasItemizedRow">
+      <span>Itemized SaaS Total</span>
+      <span><b id="saasItemizedTotal">$0.00</b></span>
+     </div>
+
+     <div class="totals-line" id="saasFinalRow">
+      <span>Final Monthly SaaS</span>
+      <span><b id="saasFinalTotal">$0.00</b></span>
+     </div>
+
+     <!-- NEW: duplicate discount line under Final Monthly SaaS (only visible when override ON) -->
+     <div class="hint" id="saasFinalDiscountLine" style="margin-top:6px; text-align:right; display:none;">
+      Discount: <b><span id="saasDiscountPct2">0%</span></b>
+      &nbsp;|&nbsp;
+      Savings: <b><span id="saasDiscountDollars2">$0.00</span></b> /mo
+     </div>
+    </div>
+   </div>
+  </div>
+
+  <!-- Processing -->
+  <div class="card">
+   <h2 style="margin-top:0">Processing Options (Informational Only)</h2>
+   <p class="hint">
+    Select an option to display a simple summary. Exact pricing depends on statement review and program eligibility.
+   </p>
+
+   <div class="proc-grid" id="procGrid">
+    <div class="proc selected" data-proc="standard">
+     <div class="title">
+      <strong>Standard (IC+)</strong>
+      <span class="info-wrap">
+       <span class="info">i</span>
+       <div class="tooltip">
+        Transparent wholesale-based pricing structure.<br>
+        Typically best when you want a traditional statement model.
+       </div>
+      </span>
+     </div>
+     <div class="desc">Traditional processing model with statement-based pricing.</div>
+    </div>
+
+    <div class="proc" data-proc="cashdiscount">
+     <div class="title">
+      <strong>Cash Discount (Dual Pricing)</strong>
+      <span class="info-wrap">
+       <span class="info">i</span>
+       <div class="tooltip">
+        Often recommended when you want to offset fees across all card types.<br>
+        Helps avoid debit card surcharge restrictions.
+       </div>
+      </span>
+     </div>
+     <div class="desc">Cash price vs card price model to help offset card costs.</div>
+    </div>
+
+    <div class="proc" data-proc="surcharge">
+     <div class="title">
+      <strong>Compliant Surcharge (Credit Only)</strong>
+      <span class="info-wrap">
+       <span class="info">i</span>
+       <div class="tooltip">
+        <b>Cannot surcharge:</b>
+        <ul><li>Debit, prepaid, gift, EBT cards</li></ul>
+        <b>Typically limited to:</b>
+        <ul><li>Up to 3% (subject to rules/state)</li></ul>
+        <b>Common limitations:</b>
+        <ul>
+         <li>May not apply to online ordering</li>
+         <li>May not apply to manual entry</li>
+        </ul>
+        Surcharge must be disclosed and shown as a separate receipt line item.
+       </div>
+      </span>
+     </div>
+     <div class="desc">Adds a compliant fee to credit cards only (excludes debit/prepaid).</div>
+    </div>
+   </div>
+
+   <div style="margin-top:12px; border:1px solid var(--line); border-radius:12px; padding:12px; background:var(--soft);">
+    <b>Selected:</b>
+    <span id="procSelectedLabel">Standard (IC+)</span>
+    <div class="hint" id="procSelectedHint" style="margin-top:6px;">
+     Traditional processing model with statement-based pricing.
+    </div>
+   </div>
+  </div>
+
+  <!-- Notes -->
+  <div class="card soft">
+   <h2 style="margin-top:0">Notes &amp; Requirements</h2>
+   <ul class="hint" style="margin:8px 0 0 18px;">
+    <li>Customer is responsible to provide adequate internet service.</li>
+    <li>Customer is responsible to provide electrical outlets.</li>
+    <li>Customer is responsible to provide network cabling (if needed).</li>
+    <li>Proposal valid for <b><span id="validDaysDisplay">60</span></b> days.</li>
+   </ul>
+  </div>
+
+  <script>
+   // ===== Helpers =====
+    const fmt = (n) => {
+      const v = Number(n || 0);
+      return v.toLocaleString(undefined, { style: "currency", currency: "USD" });
+    };
+    const clampNum = (n) => isFinite(Number(n)) ? Number(n) : 0;
+
+    // ===== Date =====
+    const today = new Date();
+    document.getElementById("todayDisplay").textContent =
+      today.toLocaleDateString(undefined, { year:"numeric", month:"2-digit", day:"2-digit" });
+
+    // ===== Header bindings =====
+    const merchantName = document.getElementById("merchantName");
+    const merchantNameDisplay = document.getElementById("merchantNameDisplay");
+    merchantName.addEventListener("input", () => {
+      merchantNameDisplay.textContent = merchantName.value.trim() || "[Restaurant Name]";
+    });
+
+    const validDays = document.getElementById("validDays");
+    const validDaysDisplay = document.getElementById("validDaysDisplay");
+    validDays.addEventListener("input", () => {
+      validDaysDisplay.textContent = String(clampNum(validDays.value));
+    });
+
+    // ===== Select Proposal =====
+    function selectProposalContents(){
+      const root = document.getElementById("spoton-proposal-app");
+      if(!root) return;
+      const range = document.createRange();
+      range.selectNodeContents(root);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      root.scrollIntoView({ behavior:"smooth", block:"start" });
+    }
+    document.getElementById("btnSelect").addEventListener("click", (e) => {
+      e.preventDefault();
+      selectProposalContents();
+    });
+
+    // ===== Hardware Data =====
+    let hardwareRows = [
+      { item:'15" SpotOn Terminal', qty:1, street:925, my:600, comp:false },
+      { item:'Customer Facing Display (w/ wedge)', qty:1, street:495, my:300, comp:false },
+      { item:'Epson M30 Thermal Receipt Printer', qty:1, street:275, my:190, comp:false },
+      { item:'Cash Drawer', qty:1, street:159, my:60, comp:false },
+      { item:'Kitchen Printer', qty:1, street:275, my:225, comp:false },
+      { item:'Pronto Router', qty:1, street:350, my:200, comp:false },
+    ];
+
+    const hardwareBody = document.getElementById("hardwareBody");
+    const btnAddHardware = document.getElementById("btnAddHardware");
+    const simpleViewToggle = document.getElementById("simpleViewToggle");
+    const hardwareItemizedWrap = document.getElementById("hardwareItemizedWrap");
+    const hardwareSimpleWrap = document.getElementById("hardwareSimpleWrap");
+
+    function renderHardware(){
+      hardwareBody.innerHTML = "";
+      hardwareRows.forEach((r, idx) => {
+        const tr = document.createElement("tr");
+
+        const tdItem = document.createElement("td");
+        const itemInput = document.createElement("input");
+        itemInput.type = "text";
+        itemInput.value = r.item;
+        itemInput.className = "wide";
+        itemInput.style.width = "100%";
+        itemInput.addEventListener("input", (e) => { hardwareRows[idx].item = e.target.value; });
+        tdItem.appendChild(itemInput);
+
+        const tdQty = document.createElement("td");
+        tdQty.className = "center";
+        const qtyInput = document.createElement("input");
+        qtyInput.type = "number";
+        qtyInput.min = "0";
+        qtyInput.step = "1";
+        qtyInput.value = r.qty;
+        qtyInput.className = "small";
+        qtyInput.addEventListener("input", (e) => { hardwareRows[idx].qty = clampNum(e.target.value); calcAll(); });
+        tdQty.appendChild(qtyInput);
+
+        const tdStreet = document.createElement("td");
+        tdStreet.className = "right";
+        const streetInput = document.createElement("input");
+        streetInput.type = "number";
+        streetInput.min = "0";
+        streetInput.step = "0.01";
+        streetInput.value = r.street;
+        streetInput.className = "small";
+        streetInput.addEventListener("input", (e) => { hardwareRows[idx].street = clampNum(e.target.value); });
+        tdStreet.appendChild(streetInput);
+
+        const tdMy = document.createElement("td");
+        tdMy.className = "right";
+        const myInput = document.createElement("input");
+        myInput.type = "number";
+        myInput.min = "0";
+        myInput.step = "0.01";
+        myInput.value = r.my;
+        myInput.className = "small";
+        myInput.addEventListener("input", (e) => { hardwareRows[idx].my = clampNum(e.target.value); calcAll(); });
+
+        if(r.comp){
+          myInput.value = 0;
+          myInput.classList.add("locked");
+          tdMy.classList.add("greyed");
+        }
+        tdMy.appendChild(myInput);
+
+        const tdLine = document.createElement("td");
+        tdLine.className = "right";
+        const line = document.createElement("span");
+        line.id = `hwLine_${idx}`;
+        line.textContent = fmt(r.qty * (r.comp ? 0 : r.my));
+        tdLine.appendChild(line);
+
+        const tdComp = document.createElement("td");
+        tdComp.className = "center";
+        const compInput = document.createElement("input");
+        compInput.type = "checkbox";
+        compInput.checked = !!r.comp;
+        compInput.addEventListener("change", (e) => {
+          hardwareRows[idx].comp = e.target.checked;
+          if(hardwareRows[idx].comp){ hardwareRows[idx].my = 0; }
+          renderHardware();
+          calcAll();
+        });
+        tdComp.appendChild(compInput);
+
+        const tdActions = document.createElement("td");
+        tdActions.className = "td-actions no-print";
+        const delBtn = document.createElement("button");
+        delBtn.className = "btn-mini";
+        delBtn.textContent = "×";
+        delBtn.title = "Remove line";
+        delBtn.addEventListener("click", () => {
+          hardwareRows.splice(idx, 1);
+          renderHardware();
+          calcAll();
+        });
+        tdActions.appendChild(delBtn);
+
+        tr.appendChild(tdItem);
+        tr.appendChild(tdQty);
+        tr.appendChild(tdStreet);
+        tr.appendChild(tdMy);
+        tr.appendChild(tdLine);
+        tr.appendChild(tdComp);
+        tr.appendChild(tdActions);
+        hardwareBody.appendChild(tr);
+      });
+      calcAll();
+    }
+
+    btnAddHardware.addEventListener("click", () => {
+      hardwareRows.push({ item:"New Hardware Item", qty:1, street:0, my:0, comp:false });
+      renderHardware();
+    });
+
+    simpleViewToggle.addEventListener("change", (e) => {
+      const on = e.target.checked;
+      hardwareItemizedWrap.style.display = on ? "none" : "block";
+      hardwareSimpleWrap.style.display = on ? "block" : "none";
+    });
+
+    // ===== Shipping & Tax =====
+    const shipping = document.getElementById("shipping");
+    const taxToggle = document.getElementById("taxToggle");
+    const taxRate = document.getElementById("taxRate");
+    shipping.addEventListener("input", calcAll);
+    taxToggle.addEventListener("change", calcAll);
+    taxRate.addEventListener("input", calcAll);
+
+    // ===== SaaS Data =====
+    let saasRows = [
+      { item:"Terminal License", qty:1, unit:55 },
+      { item:"Handheld License(s)", qty:1, unit:35 },
+      { item:"Platform Fee", qty:1, unit:25 },
+      { item:"Cell Service / Backup", qty:1, unit:25 },
+      { item:"SpotOn Loyalty", qty:0, unit:65 },
+      { item:"Online Ordering (included with core bundle)", qty:0, unit:45 },
+    ];
+
+    const saasBody = document.getElementById("saasBody");
+    const saasOverrideToggle = document.getElementById("saasOverrideToggle");
+    const saasFlatRate = document.getElementById("saasFlatRate");
+    saasOverrideToggle.addEventListener("change", calcAll);
+    saasFlatRate.addEventListener("input", calcAll);
+
+    function renderSaaS(){
+      saasBody.innerHTML = "";
+      saasRows.forEach((r, idx) => {
+        const tr = document.createElement("tr");
+
+        const tdItem = document.createElement("td");
+        const itemInput = document.createElement("input");
+        itemInput.type = "text";
+        itemInput.value = r.item;
+        itemInput.className = "wide";
+        itemInput.style.width = "100%";
+        itemInput.addEventListener("input", (e) => { saasRows[idx].item = e.target.value; });
+        tdItem.appendChild(itemInput);
+
+        const tdQty = document.createElement("td");
+        tdQty.className = "center";
+        const qtyInput = document.createElement("input");
+        qtyInput.type = "number";
+        qtyInput.min = "0";
+        qtyInput.step = "1";
+        qtyInput.value = r.qty;
+        qtyInput.className = "small";
+        qtyInput.addEventListener("input", (e) => { saasRows[idx].qty = clampNum(e.target.value); calcAll(); });
+        tdQty.appendChild(qtyInput);
+
+        const tdUnit = document.createElement("td");
+        tdUnit.className = "right";
+        const unitInput = document.createElement("input");
+        unitInput.type = "number";
+        unitInput.min = "0";
+        unitInput.step = "0.01";
+        unitInput.value = r.unit;
+        unitInput.className = "small";
+        unitInput.addEventListener("input", (e) => { saasRows[idx].unit = clampNum(e.target.value); calcAll(); });
+        tdUnit.appendChild(unitInput);
+
+        const tdLine = document.createElement("td");
+        tdLine.className = "right";
+        const line = document.createElement("span");
+        line.id = `saasLine_${idx}`;
+        line.textContent = fmt(r.qty * r.unit);
+        tdLine.appendChild(line);
+
+        tr.appendChild(tdItem);
+        tr.appendChild(tdQty);
+        tr.appendChild(tdUnit);
+        tr.appendChild(tdLine);
+        saasBody.appendChild(tr);
+      });
+      calcAll();
+    }
+
+    // ===== Processing selector =====
+    const procGrid = document.getElementById("procGrid");
+    const procSelectedLabel = document.getElementById("procSelectedLabel");
+    const procSelectedHint = document.getElementById("procSelectedHint");
+    const procMap = {
+      standard: { label: "Standard (IC+)", hint: "Traditional processing model with statement-based pricing." },
+      cashdiscount: { label: "Cash Discount (Dual Pricing)", hint: "Cash price vs card price model designed to help offset card acceptance costs." },
+      surcharge: { label: "Compliant Surcharge (Credit Cards Only)", hint: "Adds a compliant fee to credit cards only (excludes debit/prepaid)." }
+    };
+    procGrid.addEventListener("click", (e) => {
+      const card = e.target.closest(".proc");
+      if(!card) return;
+      document.querySelectorAll(".proc").forEach(x => x.classList.remove("selected"));
+      card.classList.add("selected");
+      const key = card.getAttribute("data-proc");
+      procSelectedLabel.textContent = procMap[key].label;
+      procSelectedHint.textContent = procMap[key].hint;
+    });
+
+    // ===== Calc All =====
+    function calcAll(){
+      // Hardware totals
+      let hwSubtotal = 0;
+      hardwareRows.forEach((r, idx) => {
+        const line = r.qty * (r.comp ? 0 : r.my);
+        hwSubtotal += line;
+        const el = document.getElementById(`hwLine_${idx}`);
+        if(el) el.textContent = fmt(line);
+      });
+
+      const ship = clampNum(shipping.value);
+      const taxOn = taxToggle.checked;
+      const txRate = clampNum(taxRate.value) / 100;
+      const tax = taxOn ? (hwSubtotal * txRate) : 0;
+      const hwGrand = hwSubtotal + ship + tax;
+
+      document.getElementById("hardwareSubtotal").textContent = fmt(hwSubtotal);
+      document.getElementById("shippingDisplay").textContent = fmt(ship);
+      document.getElementById("taxDisplay").textContent = fmt(tax);
+      document.getElementById("hardwareGrandTotal").textContent = fmt(hwGrand);
+
+      // Simple view total
+      document.getElementById("hardwareBundleTotal").textContent = fmt(hwSubtotal);
+
+      // SaaS totals
+      let saasItemized = 0;
+      saasRows.forEach((r, idx) => {
+        const line = r.qty * r.unit;
+        saasItemized += line;
+        const el = document.getElementById(`saasLine_${idx}`);
+        if(el) el.textContent = fmt(line);
+      });
+      document.getElementById("saasItemizedTotal").textContent = fmt(saasItemized);
+
+      const overrideOn = saasOverrideToggle.checked;
+      const flat = clampNum(saasFlatRate.value);
+      const saasFinal = overrideOn ? flat : saasItemized;
+      document.getElementById("saasFinalTotal").textContent = fmt(saasFinal);
+
+      // Grey out SaaS table when override ON
+      const table = saasBody.closest("table");
+      if(table){
+        if(overrideOn){ table.classList.add("greyed"); }
+        else { table.classList.remove("greyed"); }
+      }
+
+      // Discount visibility (top area)
+      const savings = Math.max(0, saasItemized - flat);
+      const pct = (saasItemized > 0) ? (savings / saasItemized) * 100 : 0;
+      document.getElementById("saasDiscountPct").textContent = overrideOn ? `${pct.toFixed(0)}%` : "0%";
+      document.getElementById("saasDiscountDollars").textContent = overrideOn ? fmt(savings) : fmt(0);
+
+      // NEW: mute itemized total + show duplicate discount under Final
+      const saasItemizedRow = document.getElementById("saasItemizedRow");
+      const saasFinalDiscountLine = document.getElementById("saasFinalDiscountLine");
+      const pct2 = document.getElementById("saasDiscountPct2");
+      const dollars2 = document.getElementById("saasDiscountDollars2");
+
+      if(saasItemizedRow){
+        if(overrideOn) saasItemizedRow.classList.add("muted-total");
+        else saasItemizedRow.classList.remove("muted-total");
+      }
+      if(saasFinalDiscountLine && pct2 && dollars2){
+        if(overrideOn){
+          saasFinalDiscountLine.style.display = "block";
+          pct2.textContent = `${pct.toFixed(0)}%`;
+          dollars2.textContent = fmt(savings);
+        } else {
+          saasFinalDiscountLine.style.display = "none";
+          pct2.textContent = "0%";
+          dollars2.textContent = fmt(0);
+        }
+      }
+
+      // Valid days display
+      validDaysDisplay.textContent = String(clampNum(validDays.value));
+    }
+
+    // ===== Print =====
+    document.getElementById("btnPrint").addEventListener("click", () => {
+      selectProposalContents(); // helps when using browser "Selection only" print options
+      window.print();
+    });
+
+    // ===== Init =====
+    renderHardware();
+    renderSaaS();
+    calcAll();
+  </script>
+</div>
+
